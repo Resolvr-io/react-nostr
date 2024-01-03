@@ -1,0 +1,38 @@
+{
+  "compilerOptions": {
+
+    /* Base Options */
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "esnext",
+    "verbatimModuleSyntax": false,
+    "allowJs": true,
+    "resolveJsonModule": false,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* If NOT using TSC for transpiling */
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "noEmit": true,
+
+    /* If running in DOM */
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+
+    /* If building library */
+    "declaration": true,
+
+    /* If building library in monorepo */
+    "composite": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    /* If building for React */
+    "jsx": "react-jsx",
+  }
+}

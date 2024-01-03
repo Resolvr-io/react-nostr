@@ -1,1 +1,3 @@
-# react-nostr
+# React Nostr
+
+A React library for Nostr.

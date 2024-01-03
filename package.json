@@ -1,0 +1,37 @@
+{
+  "name": "react-nostr",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "A react library for nostr",
+  "homepage": "nodetec.co",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ChristianChiarulli/react-nostr"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "tsc",
+    "outdated": "bunx npm-check-updates -ui -p bun"
+  },
+  "keywords": [
+    "testing",
+    "npm"
+  ],
+  "author": "Christian Chiarulli",
+  "license": "Unlicense",
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "bun-types": "latest",
+    "tsup": "^8.0.1"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  },
+  "dependencies": {
+    "nostr-tools": "^2.1.2",
+    "zustand": "^4.4.7"
+  }
+}
