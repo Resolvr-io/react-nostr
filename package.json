@@ -8,6 +8,16 @@
     "type": "git",
     "url": "https://github.com/ChristianChiarulli/react-nostr"
   },
+  "files": [
+    "dist/**/*"
+  ],
+  "funding": [
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/chrisatmachine"
+    },
+    "https://getalby.com/p/chrisatmachine"
+  ],
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,14 +27,20 @@
     "outdated": "bunx npm-check-updates -ui -p bun"
   },
   "keywords": [
-    "testing",
-    "npm"
+    "nostr",
+    "react"
   ],
   "author": "Christian Chiarulli",
   "license": "Unlicense",
   "devDependencies": {
     "@types/node": "^20.10.6",
+    "@typescript-eslint/eslint-plugin": "^6.17.0",
     "bun-types": "latest",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "prettier": "^3.1.1",
+    "react-dom": "^18.2.0",
     "tsup": "^8.0.1"
   },
   "peerDependencies": {
@@ -32,6 +48,7 @@
   },
   "dependencies": {
     "nostr-tools": "^2.1.2",
+    "react": "^18.2.0",
     "zustand": "^4.4.7"
   }
 }
