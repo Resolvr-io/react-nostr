@@ -20,7 +20,11 @@
     "module": "ESNext",
     "noEmit": true,
     /* If running in DOM */
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     /* If building library */
     "declaration": true,
     /* If building library in monorepo */
@@ -29,6 +33,17 @@
     /* If building for React */
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*"],
-  "exclude": ["dist", "node_modules", "src/tests/**/*"]
+  "include": [
+    ".eslintrc.cjs",
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.cjs",
+    "**/*.js",
+  ],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "src/tests/**/*"
+  ]
 }
