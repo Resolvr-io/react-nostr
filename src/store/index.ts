@@ -1,16 +1,11 @@
 import { SimplePool, type Event } from "nostr-tools";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { type KeyPair, type RelayUrl } from "../types";
+import { type KeyPair } from "../types";
 
 export interface NostrState {
   pool: SimplePool;
   setPool: (pool: SimplePool) => void;
-
-  subRelays: RelayUrl[];
-  pubRelays: RelayUrl[];
-  setSubscribeRelays: (relays: RelayUrl[]) => void;
-  setPublishRelays: (relays: RelayUrl[]) => void;
 
   keyPair: KeyPair | undefined;
   setKeyPair: (keyPair: KeyPair) => void;
@@ -31,12 +26,6 @@ const useNostrStore = create<NostrState>()(
   devtools((set) => ({
     pool: new SimplePool(),
     setPool: (pool) => set({ pool }),
-
-    // subRelays: ["wss://nos.lol", "wss://relay.damus.io"],
-    subRelays: ["wss://nos.lol", "wss://relay.damus.io"],
-    pubRelays: ["wss://nos.lol"],
-    setSubscribeRelays: (relays) => set({ subRelays: relays }),
-    setPublishRelays: (relays) => set({ pubRelays: relays }),
 
     keyPair: undefined,
     setKeyPair: (keyPair) => set({ keyPair }),

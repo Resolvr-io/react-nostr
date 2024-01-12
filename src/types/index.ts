@@ -7,9 +7,14 @@ export type KeyPair = {
 
 export type RelayUrl = `wss://${string}`;
 
+export type UsePublishParams = {
+  relays: RelayUrl[];
+}
+
 export type UseSubscribeParams = {
   filter: Filter;
   eventKey: string;
+  relays: RelayUrl[];
   initialEvents?: Event[];
   onEvent?: (event: Event) => void;
   onEOSE?: () => void;
@@ -37,3 +42,5 @@ export interface Profile {
   github?: string;
   [key: string]: unknown;
 }
+
+export type PublishEventStatus = "idle" | "pending" | "error" | "success";
