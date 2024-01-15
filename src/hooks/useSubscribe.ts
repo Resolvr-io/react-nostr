@@ -24,6 +24,8 @@ const useSubscribe = ({
 
   useEffect(() => {
     setLoading(true);
+    console.log("useSubscribe", eventKey, initialEvents);
+    console.log("useSubscribe", eventKey, eventMap[eventKey]);
 
     if (initialEvents.length > 0) {
       setEvents(eventKey, initialEvents);
@@ -31,15 +33,16 @@ const useSubscribe = ({
       return;
     }
 
-    if (eventMap[eventKey]) {
+    const events = eventMap[eventKey];
+
+    if (events && events.length > 0) {
       setLoading(false);
       return;
     }
 
     async function fetchEvents() {
       const _events = await _pool.querySync(relays, filter);
-      // console.log("_EVENTS", _events);
-      console.log("GETTING INITIAL EVENTS");
+      console.log("EVENTS", _events);
 
       if (!_events || _events.length === 0) {
         // onEventsNotFound();
@@ -49,6 +52,7 @@ const useSubscribe = ({
       }
       setNoEvents(false);
 
+      // the last event should be the oldest event so we sort by created_at
       const sortedEvents = _events.sort((a, b) => b.created_at - a.created_at);
 
       setEvents(eventKey, sortedEvents);
@@ -56,7 +60,7 @@ const useSubscribe = ({
 
     void fetchEvents();
     setLoading(false);
-  }, [relays, _pool]);
+  }, [relays, _pool, filter, initialEvents, eventMap, eventKey, setEvents]);
 
   const loadOlderEvents = useCallback(
     async (eventKey: string, limit: number) => {
@@ -79,18 +83,11 @@ const useSubscribe = ({
         return;
       }
 
-      console.log("LAST EVENT", lastEvent);
-      // last event should be oldest event you can get them from the last existing event list
-      // sort by created_at
       const until = lastEvent.created_at - 200;
-      console.log("UNTIL", until);
 
       moreFilter = { ...moreFilter, until };
 
-      console.log("MORE FILTER", moreFilter);
-
       setStatus("fetching");
-      console.log("GETTING MORE EVENTS");
       const newEvents = await _pool.querySync(relays, moreFilter);
 
       if (!newEvents || newEvents.length === 0) {
@@ -103,18 +100,22 @@ const useSubscribe = ({
       let sortedEvents = newEvents.sort((a, b) => b.created_at - a.created_at);
 
       // TODO: if events returned are greater than limit, drop the extra events
-      // maybe keep them in a separate list
+      // maybe keep them in a separate list/cache for later use
       sortedEvents = sortedEvents.slice(0, limit);
 
       const allEvents = [...existingEvents, ...sortedEvents];
       setStatus("idle");
-      console.log("ALL EVENTS", allEvents);
 
       setEvents(eventKey, allEvents);
       setLoading(false);
     },
-    [relays, _pool],
+    [relays, _pool, filter],
   );
+
+  const invalidate = useCallback(async () => {
+    const { setEvents } = useNostrStore.getState();
+    setEvents(eventKey, []);
+  }, [eventKey]);
 
   return {
     loading,
@@ -122,6 +123,7 @@ const useSubscribe = ({
     events: eventMap[eventKey] ?? [],
     loadOlderEvents,
     noEvents,
+    invalidate,
   };
 };
 

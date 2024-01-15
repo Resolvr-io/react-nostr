@@ -5,14 +5,13 @@ import useNostrStore from "../store";
 import { type Event } from "nostr-tools";
 import { type PublishEventStatus, type UsePublishParams } from "../types";
 
-// TODO: expose callback functions for success and error
 // TODO: add retry logic
 const usePublish = ({ relays }: UsePublishParams) => {
   const [status, setStatus] = useState<PublishEventStatus>("idle");
   const pool = useNostrStore((state) => state.pool);
 
-  const publishEvent = useCallback(
-    async (event: Event | undefined) => {
+  const publish = useCallback(
+    async (event: Event | undefined, onSuccess: (event: Event) => void) => {
       setStatus("pending");
 
       if (!event) {
@@ -22,7 +21,11 @@ const usePublish = ({ relays }: UsePublishParams) => {
 
       const publishedEvent = await Promise.any(pool.publish(relays, event));
 
-      setStatus("success");
+      if (publishedEvent !== null) {
+        onSuccess(event);
+        setStatus("success");
+      }
+
       setStatus("idle");
 
       return publishedEvent;
@@ -30,7 +33,14 @@ const usePublish = ({ relays }: UsePublishParams) => {
     [pool, relays],
   );
 
-  return { publishEvent, status };
+  const invalidateKeys = useCallback(async (eventKeys: string[]) => {
+    const { setEvents } = useNostrStore.getState();
+    for (const eventKey of eventKeys) {
+      setEvents(eventKey, []);
+    }
+  }, []);
+
+  return { publish, invalidateKeys, status };
 };
 
 export default usePublish;

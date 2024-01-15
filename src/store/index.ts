@@ -20,6 +20,9 @@ export interface NostrState {
   profileMap: Record<string, Event | undefined>;
   addProfile: (publicKey: string, event: Event) => void;
   updateProfile: (publicKey: string, event: Event) => void;
+  publicKeyBatch: Set<string>;
+  setPublicKeyBatch: (batch: Set<string>) => void;
+  addPublicKeyBatch: (publicKey: string) => void;
 }
 
 const useNostrStore = create<NostrState>()(
@@ -73,6 +76,13 @@ const useNostrStore = create<NostrState>()(
             ...appEvent,
           },
         },
+      })),
+
+    publicKeyBatch: new Set(),
+    setPublicKeyBatch: (batch) => set({ publicKeyBatch: batch }),
+    addPublicKeyBatch: (publicKey) =>
+      set((prev) => ({
+        publicKeyBatch: new Set(prev.publicKeyBatch).add(publicKey),
       })),
   })),
 );

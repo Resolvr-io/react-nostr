@@ -4,8 +4,6 @@ import { type Filter } from "nostr-tools";
 import useNostrStore from "../store";
 import { type RelayUrl } from "../types";
 
-// TODO: option for batched profile events
-// NOTE: batching seems to be slow
 const useProfileEvent = (publicKey: string, relays: RelayUrl[]) => {
   const [loading, setLoading] = useState(true);
 
@@ -15,6 +13,11 @@ const useProfileEvent = (publicKey: string, relays: RelayUrl[]) => {
 
   useEffect(
     () => {
+      if (profileMap[publicKey]) {
+        setLoading(false);
+        return;
+      }
+
       async function fetchProfile() {
         const filter: Filter = {
           kinds: [0],
@@ -23,7 +26,6 @@ const useProfileEvent = (publicKey: string, relays: RelayUrl[]) => {
         };
 
         const profileEvent = await _pool.get(relays, filter);
-        // console.log("PROFILE METADATA", profileEvent);
         if (!profileEvent) {
           setLoading(false);
           return;
@@ -38,8 +40,7 @@ const useProfileEvent = (publicKey: string, relays: RelayUrl[]) => {
       };
     },
 
-    // TODO: passing subRelays as a dependency causes a lot of re-renders
-    [_pool, addProfile, publicKey],
+    [_pool, addProfile, publicKey, relays],
   );
 
   return { loading, profileEvent: profileMap[publicKey] };
