@@ -2,48 +2,59 @@ import { type SimplePool } from "nostr-tools";
 
 import useNostrStore from "../store";
 import { type RelayUrl } from "../types";
+import { tag } from "../utils";
 
 const batch = new Set<string>();
 let timer: NodeJS.Timeout | null = null;
 
-const fetchProfiles = async (
-  _pool: SimplePool,
+const fetchEvents = async (
+  pool: SimplePool,
+  kind: number,
   batch: Set<string>,
   relays: RelayUrl[],
 ) => {
   const filter = {
-    kinds: [0],
-    authors: Array.from(batch),
+    kinds: [kind],
+    "#a": Array.from(batch),
   };
 
-  const profileEvents = await _pool.querySync(relays, filter);
+  const events = await pool.querySync(relays, filter);
 
-  profileEvents.forEach((event) => {
-    useNostrStore.getState().addProfile(event.pubkey, event);
+  events.forEach((event) => {
+    const ref = tag("a", event);
+    if (ref) {
+      useNostrStore.getState().addEvent(ref, event);
+    }
   });
 };
 
-const addPublicKeyToBatch = (
-  publicKey: string,
-  _pool: SimplePool,
+// add type for lookup could be atags, or ids
+const addEventReferenceBatch = (
+  eventRef: string,
+  kind: number,
+  pool: SimplePool,
   relays: RelayUrl[],
+  timeout = 500,
 ) => {
-  const profile = useNostrStore.getState().profileMap[publicKey];
+  // TODO: check if event id exists in event map
+  // return if it does
 
-  if (profile) {
+  const events = useNostrStore.getState().eventMap[eventRef];
+
+  if (events) {
     return;
   }
 
-  batch.add(publicKey);
+  batch.add(eventRef);
 
   if (timer) {
     clearTimeout(timer);
   }
 
   timer = setTimeout(() => {
-    void fetchProfiles(_pool, new Set(batch), relays);
+    void fetchEvents(pool, kind, new Set(batch), relays);
     batch.clear();
-  }, 500);
+  }, timeout);
 };
 
-export { addPublicKeyToBatch };
+export { addEventReferenceBatch };

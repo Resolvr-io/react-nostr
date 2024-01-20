@@ -24,12 +24,12 @@ const useSubscribe = ({
 
   useEffect(() => {
     setLoading(true);
-    console.log("useSubscribe", eventKey, initialEvents);
-    console.log("useSubscribe", eventKey, eventMap[eventKey]);
+    setStatus("fetching");
 
     if (initialEvents.length > 0) {
       setEvents(eventKey, initialEvents);
       setLoading(false);
+      setStatus("idle");
       return;
     }
 
@@ -37,17 +37,20 @@ const useSubscribe = ({
 
     if (events && events.length > 0) {
       setLoading(false);
+      setStatus("idle");
       return;
     }
 
     async function fetchEvents() {
       const _events = await _pool.querySync(relays, filter);
-      console.log("EVENTS", _events);
+      setStatus("fetching");
+      // console.log("EVENTS", _events);
 
       if (!_events || _events.length === 0) {
         // onEventsNotFound();
         setNoEvents(true);
         setLoading(false);
+        setStatus("idle");
         return;
       }
       setNoEvents(false);
@@ -56,6 +59,7 @@ const useSubscribe = ({
       const sortedEvents = _events.sort((a, b) => b.created_at - a.created_at);
 
       setEvents(eventKey, sortedEvents);
+      setStatus("idle");
     }
 
     void fetchEvents();
@@ -67,10 +71,12 @@ const useSubscribe = ({
       const { eventMap, setEvents } = useNostrStore.getState();
 
       setLoading(true);
+      setStatus("fetching");
       const existingEvents = eventMap[eventKey];
 
       if (!existingEvents || existingEvents.length === 0) {
         setLoading(false);
+        setStatus("idle");
         return;
       }
 
@@ -80,6 +86,7 @@ const useSubscribe = ({
 
       if (!lastEvent) {
         setLoading(false);
+        setStatus("idle");
         return;
       }
 
@@ -87,12 +94,12 @@ const useSubscribe = ({
 
       moreFilter = { ...moreFilter, until };
 
-      setStatus("fetching");
       const newEvents = await _pool.querySync(relays, moreFilter);
 
       if (!newEvents || newEvents.length === 0) {
         onEventsNotFound();
         setLoading(false);
+        setStatus("idle");
         return;
       }
       setNoEvents(false);
@@ -104,10 +111,10 @@ const useSubscribe = ({
       sortedEvents = sortedEvents.slice(0, limit);
 
       const allEvents = [...existingEvents, ...sortedEvents];
-      setStatus("idle");
 
       setEvents(eventKey, allEvents);
       setLoading(false);
+      setStatus("idle");
     },
     [relays, _pool, filter],
   );

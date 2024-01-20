@@ -20,6 +20,7 @@ export interface NostrState {
   profileMap: Record<string, Event | undefined>;
   addProfile: (publicKey: string, event: Event) => void;
   updateProfile: (publicKey: string, event: Event) => void;
+
   publicKeyBatch: Set<string>;
   setPublicKeyBatch: (batch: Set<string>) => void;
   addPublicKeyBatch: (publicKey: string) => void;

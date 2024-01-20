@@ -44,3 +44,9 @@ export interface Profile {
 }
 
 export type PublishEventStatus = "idle" | "pending" | "error" | "success";
+
+export interface ATagParams {
+  kind: string;
+  pubkey: string;
+  dTagValue: string;
+}
