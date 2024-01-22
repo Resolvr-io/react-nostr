@@ -15,6 +15,7 @@ export interface NostrState {
   eventMap: Record<string, Event[] | undefined>;
   addEvent: (key: string, event: Event) => void;
   setEvents: (key: string, events: Event[]) => void;
+  removeEvent: (key: string, event: Event) => void;
   clearEvents: (key: string) => void;
 
   profileMap: Record<string, Event | undefined>;
@@ -49,6 +50,15 @@ const useNostrStore = create<NostrState>()(
         eventMap: {
           ...prev.eventMap,
           [key]: appEvents,
+        },
+      })),
+    removeEvent: (key, appEvent) =>
+      set((prev) => ({
+        eventMap: {
+          ...prev.eventMap,
+          [key]: prev.eventMap[key]?.filter(
+            (event) => event.id !== appEvent.id,
+          ),
         },
       })),
     clearEvents: (key) =>

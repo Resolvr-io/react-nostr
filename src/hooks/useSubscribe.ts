@@ -64,7 +64,7 @@ const useSubscribe = ({
 
     void fetchEvents();
     setLoading(false);
-  }, [relays, _pool, filter, initialEvents, eventMap, eventKey, setEvents]);
+  }, [relays, _pool]);
 
   const loadOlderEvents = useCallback(
     async (eventKey: string, limit: number) => {
@@ -119,10 +119,10 @@ const useSubscribe = ({
     [relays, _pool, filter],
   );
 
-  const invalidate = useCallback(async () => {
+  const invalidate = useCallback(async (eventKey: string) => {
     const { setEvents } = useNostrStore.getState();
     setEvents(eventKey, []);
-  }, [eventKey]);
+  }, []);
 
   return {
     loading,

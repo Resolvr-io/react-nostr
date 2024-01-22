@@ -33,8 +33,6 @@ const usePublish = ({ relays }: UsePublishParams) => {
     [pool, relays],
   );
 
-  // TODO: maybe create delete function
-  // relocate this
   const removeEvent = useCallback(
     async (eventKeys: string[], eventId: string) => {
       const { eventMap, setEvents } = useNostrStore.getState();
@@ -50,6 +48,11 @@ const usePublish = ({ relays }: UsePublishParams) => {
     [],
   );
 
+  const addEvent = useCallback(async (eventKey: string, event: Event) => {
+    const { eventMap, setEvents } = useNostrStore.getState();
+    setEvents(eventKey, [event, ...(eventMap[eventKey] ?? [])]);
+  }, []);
+
   // relocate this
   const invalidateKeys = useCallback(async (eventKeys: string[]) => {
     const { setEvents } = useNostrStore.getState();
@@ -58,7 +61,7 @@ const usePublish = ({ relays }: UsePublishParams) => {
     }
   }, []);
 
-  return { publish, invalidateKeys, removeEvent, status };
+  return { publish, invalidateKeys, removeEvent, addEvent, status };
 };
 
 export default usePublish;
