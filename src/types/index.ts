@@ -9,7 +9,7 @@ export type RelayUrl = `wss://${string}`;
 
 export type UsePublishParams = {
   relays: RelayUrl[];
-}
+};
 
 export type UseSubscribeParams = {
   filter: Filter;
@@ -23,9 +23,52 @@ export type UseSubscribeParams = {
   onEventsNotFound?: () => void;
 };
 
+export type UseBatchedParams = {
+  kind: number;
+  eventRef: string;
+  relays: RelayUrl[];
+};
+
 export type UseProfileParams = {
   publicKey: string;
 };
+
+export type UseZapParams = {
+  eventKey: string;
+  relays: RelayUrl[];
+};
+
+export type ZapParams = {
+  amount: number;
+  recipientMetadata: Event;
+  eventId: string;
+  content?: string;
+  secretKey?: Uint8Array;
+  initialDelay?: number;
+  retryInterval?: number;
+  onPaymentSuccess?: (sendPaymentResponse: SendPaymentResponse) => void;
+  onPaymentFailure?: () => void;
+  onZapReceipts?: (events: Event[]) => void;
+  onNoZapReceipts?: () => void;
+};
+
+export interface ZapRequestParams {
+  recipientPubkey: string;
+  eventId?: string;
+  amount: number;
+  content?: string;
+  relays: string[];
+}
+
+export interface ZapResponseBody {
+  allowsNostr?: boolean;
+  nostrPubkey?: string;
+  callback?: string;
+}
+
+export interface InvoiceResponse {
+  pr: string;
+}
 
 export interface Profile {
   relay?: string;
@@ -44,6 +87,7 @@ export interface Profile {
 }
 
 export type PublishEventStatus = "idle" | "pending" | "error" | "success";
+export type ZapEventStatus = "idle" | "pending" | "error" | "success";
 
 export interface ATagParams {
   kind: string;

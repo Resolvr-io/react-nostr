@@ -1,36 +1,48 @@
-import { type SimplePool } from "nostr-tools";
+import { type Filter, type SimplePool } from "nostr-tools";
 
 import useNostrStore from "../store";
 import { type RelayUrl } from "../types";
-import { tag } from "../utils";
 
 const batch = new Set<string>();
 let timer: NodeJS.Timeout | null = null;
 
+function isATag(str: string): str is `${string}:${string}:${string}` {
+  return /^.+?:.+?:.+?$/.test(str);
+}
+
 const fetchEvents = async (
   pool: SimplePool,
+  eventRef: string,
+  eventKey: string,
   kind: number,
   batch: Set<string>,
   relays: RelayUrl[],
 ) => {
-  const filter = {
-    kinds: [kind],
-    "#a": Array.from(batch),
-  };
+  let filter: Filter | undefined;
+
+  if (isATag(eventRef)) {
+    filter = {
+      kinds: [kind],
+      "#a": Array.from(batch),
+    };
+  } else {
+    filter = {
+      kinds: [kind],
+      "#e": Array.from(batch),
+    };
+  }
 
   const events = await pool.querySync(relays, filter);
 
   events.forEach((event) => {
-    const ref = tag("a", event);
-    if (ref) {
-      useNostrStore.getState().addEvent(ref, event);
-    }
+      useNostrStore.getState().addEvent(eventKey, event);
   });
 };
 
 // add type for lookup could be atags, or ids
 const addEventReferenceBatch = (
   eventRef: string,
+  eventKey: string,
   kind: number,
   pool: SimplePool,
   relays: RelayUrl[],
@@ -52,7 +64,7 @@ const addEventReferenceBatch = (
   }
 
   timer = setTimeout(() => {
-    void fetchEvents(pool, kind, new Set(batch), relays);
+    void fetchEvents(pool, eventRef, eventKey, kind, new Set(batch), relays);
     batch.clear();
   }, timeout);
 };

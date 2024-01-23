@@ -17,7 +17,7 @@ const useSubscribe = ({
 }: UseSubscribeParams) => {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<"idle" | "fetching">("idle");
-  const _pool = useNostrStore((state) => state.pool);
+  const pool = useNostrStore((state) => state.pool);
   const eventMap = useNostrStore((state) => state.eventMap);
   const setEvents = useNostrStore((state) => state.setEvents);
   const [noEvents, setNoEvents] = useState(false);
@@ -42,13 +42,14 @@ const useSubscribe = ({
     }
 
     async function fetchEvents() {
-      const _events = await _pool.querySync(relays, filter);
+      const _events = await pool.querySync(relays, filter);
       setStatus("fetching");
       // console.log("EVENTS", _events);
 
       if (!_events || _events.length === 0) {
         // onEventsNotFound();
-        setNoEvents(true);
+        // TODO: need a way to set noEvents to false when new events are added
+        // setNoEvents(true);
         setLoading(false);
         setStatus("idle");
         return;
@@ -64,7 +65,7 @@ const useSubscribe = ({
 
     void fetchEvents();
     setLoading(false);
-  }, [relays, _pool]);
+  }, [relays, pool]);
 
   const loadOlderEvents = useCallback(
     async (eventKey: string, limit: number) => {
@@ -94,7 +95,7 @@ const useSubscribe = ({
 
       moreFilter = { ...moreFilter, until };
 
-      const newEvents = await _pool.querySync(relays, moreFilter);
+      const newEvents = await pool.querySync(relays, moreFilter);
 
       if (!newEvents || newEvents.length === 0) {
         onEventsNotFound();
@@ -116,7 +117,7 @@ const useSubscribe = ({
       setLoading(false);
       setStatus("idle");
     },
-    [relays, _pool, filter],
+    [relays, pool, filter],
   );
 
   const invalidate = useCallback(async (eventKey: string) => {

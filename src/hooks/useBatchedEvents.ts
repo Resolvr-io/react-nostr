@@ -7,6 +7,7 @@ import { type RelayUrl } from "../types";
 const useBatchedEvents = (
   kind: number,
   eventRef: string,
+  eventKey: string,
   relays: RelayUrl[],
 ) => {
   const eventMap = useNostrStore((state) => state.eventMap);
@@ -14,8 +15,8 @@ const useBatchedEvents = (
   const pool = useNostrStore((state) => state.pool);
 
   useEffect(() => {
-    addEventReferenceBatch(eventRef, kind, pool, relays);
-  }, [eventRef, kind, pool, relays]);
+    addEventReferenceBatch(eventRef, eventKey, kind, pool, relays);
+  }, [eventKey, eventRef, kind, pool, relays]);
 
   return eventMap[eventRef];
 };
