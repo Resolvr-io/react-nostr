@@ -62,7 +62,7 @@ const addEventReferenceBatch = (
   // TODO: check if event id exists in event map
   // return if it does
 
-  const events = useNostrStore.getState().eventMap[eventRef];
+  const events = useNostrStore.getState().eventMap[`${eventKey}-${eventRef}`];
 
   if (events) {
     return;
