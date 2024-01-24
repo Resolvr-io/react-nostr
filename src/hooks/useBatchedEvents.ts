@@ -18,7 +18,7 @@ const useBatchedEvents = (
     addEventReferenceBatch(eventRef, eventKey, kind, pool, relays);
   }, [eventKey, eventRef, kind, pool, relays]);
 
-  return eventMap[eventRef];
+  return eventMap[`${eventKey}-${eventRef}`];
 };
 
 export default useBatchedEvents;

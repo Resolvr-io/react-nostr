@@ -2,6 +2,7 @@ import { type Filter, type SimplePool } from "nostr-tools";
 
 import useNostrStore from "../store";
 import { type RelayUrl } from "../types";
+import { tag } from "..";
 
 const batch = new Set<string>();
 let timer: NodeJS.Timeout | null = null;
@@ -21,11 +22,13 @@ const fetchEvents = async (
   let filter: Filter | undefined;
 
   if (isATag(eventRef)) {
+    console.log("is a tag");
     filter = {
       kinds: [kind],
       "#a": Array.from(batch),
     };
   } else {
+    console.log("is an id");
     filter = {
       kinds: [kind],
       "#e": Array.from(batch),
@@ -35,7 +38,15 @@ const fetchEvents = async (
   const events = await pool.querySync(relays, filter);
 
   events.forEach((event) => {
-      useNostrStore.getState().addEvent(eventKey, event);
+    if (isATag(eventRef)) {
+      useNostrStore
+        .getState()
+        .addEvent(`${eventKey}-${tag("a", event)}`, event);
+    } else {
+      useNostrStore
+        .getState()
+        .addEvent(`${eventKey}-${tag("e", event)}`, event);
+    }
   });
 };
 
