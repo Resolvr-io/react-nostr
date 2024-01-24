@@ -27,7 +27,7 @@ const useZap = ({ eventKey, relays }: UseZapParams) => {
       content,
       secretKey,
       initialDelay = 100,
-      retryInterval = 500,
+      retryInterval = 1000,
       onPaymentSuccess,
       onPaymentFailure,
       onZapReceipts,
@@ -85,10 +85,14 @@ const useZap = ({ eventKey, relays }: UseZapParams) => {
           "#e": [eventId],
         };
 
+        // console.log("===zapReceiptFilter===", zapReceiptFilter);
+
         const checkReceipt = async () => {
           const zapReceipts = await pool.querySync(relays, zapReceiptFilter);
 
-          if (zapReceipts) {
+          // console.log("===zapReceipts===", zapReceipts);
+
+          if (zapReceipts && zapReceipts.length > 0) {
             clearInterval(interval);
             // setZapReceipts(zapReceipts);
             setEvents(eventKey, [...zapReceipts, ...(eventMap[eventKey] ?? [])]);

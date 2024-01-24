@@ -141,14 +141,20 @@ export const sendZap = async ({
 
   if (!zapRequestEvent) throw new Error("zap request event not created");
 
+  // console.log("zap request event", zapRequestEvent);
+
   // this needs to be a profile event
   const zapEndpoint = await getZapEndpoint(recipientMetadata);
 
   if (!zapEndpoint) throw new Error("zap endpoint not found");
 
+  // console.log("zap endpoint", zapEndpoint);
+
   const invoice = await fetchInvoice(zapEndpoint, zapRequestEvent);
 
   if (!invoice) throw new Error("invoice not found");
+
+  // console.log("invoice", invoice);
 
   try {
     return await payInvoice(invoice);
