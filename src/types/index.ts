@@ -83,6 +83,7 @@ export interface Profile {
   banner?: string;
   location?: string;
   github?: string;
+  twitter?: string;
   [key: string]: unknown;
 }
 
