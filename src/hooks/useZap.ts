@@ -16,8 +16,8 @@ const useZap = ({ eventKey, relays }: UseZapParams) => {
   const pool = useNostrStore((state) => state.pool);
   const eventMap = useNostrStore((state) => state.eventMap);
   const [sendPaymentResponse, setSendPaymentResponse] = useState<
-    SendPaymentResponse | undefined
-  >(undefined);
+    SendPaymentResponse | string
+  >("");
 
   const zap = useCallback(
     async ({
@@ -28,13 +28,13 @@ const useZap = ({ eventKey, relays }: UseZapParams) => {
       secretKey,
       initialDelay = 100,
       retryInterval = 1000,
+      useQRCode = false,
       onPaymentSuccess,
       onPaymentFailure,
       onZapReceipts,
       onNoZapReceipts,
     }: ZapParams) => {
       const { eventMap, setEvents } = useNostrStore.getState();
-
       setStatus("pending");
 
       if (recipientMetadata.content === "") {
@@ -55,7 +55,7 @@ const useZap = ({ eventKey, relays }: UseZapParams) => {
         return;
       }
 
-      let sendPaymentResponse: SendPaymentResponse | undefined;
+      let sendPaymentResponse: SendPaymentResponse | string;
 
       try {
         sendPaymentResponse = await sendZap({
@@ -65,6 +65,7 @@ const useZap = ({ eventKey, relays }: UseZapParams) => {
           amount,
           content: content ?? "",
           secretKey,
+          useQRCode,
         });
         setSendPaymentResponse(sendPaymentResponse);
         if (onPaymentSuccess) onPaymentSuccess(sendPaymentResponse);
@@ -95,7 +96,10 @@ const useZap = ({ eventKey, relays }: UseZapParams) => {
           if (zapReceipts && zapReceipts.length > 0) {
             clearInterval(interval);
             // setZapReceipts(zapReceipts);
-            setEvents(eventKey, [...zapReceipts, ...(eventMap[eventKey] ?? [])]);
+            setEvents(eventKey, [
+              ...zapReceipts,
+              ...(eventMap[eventKey] ?? []),
+            ]);
             // return { sendPaymentResponse, zapReceipts };
             setStatus("success");
             setStatus("idle");
@@ -115,7 +119,7 @@ const useZap = ({ eventKey, relays }: UseZapParams) => {
         }, retryInterval);
       }, initialDelay);
     },
-    [],
+    []
   );
   return {
     zap,
