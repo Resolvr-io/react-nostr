@@ -42,14 +42,14 @@ export function tag(key: string, event: Event | undefined) {
 export function allTags(key: string, event: Event): string[] {
   return event.tags
     .filter(
-      (innerArray) => innerArray[0] === key && innerArray[1] !== undefined,
+      (innerArray) => innerArray[0] === key && innerArray[1] !== undefined
     )
     .map((innerArray) => innerArray[1]!);
 }
 
 export const createNaddr = (
   event: Event | undefined,
-  relays: RelayUrl[] | undefined = undefined,
+  relays: RelayUrl[] | undefined = undefined
 ) => {
   const identifier = tag("d", event);
   if (!identifier) {
@@ -81,7 +81,7 @@ function generateUniqueHash(data: string, length: number) {
 export async function finishEvent(
   t: EventTemplate,
   secretKey?: Uint8Array,
-  onErr?: (err: Error) => void,
+  onErr?: (err: Error) => void
 ) {
   let event = t as Event;
   if (secretKey) {
@@ -92,6 +92,7 @@ export async function finishEvent(
         event.pubkey = await nostr.getPublicKey();
         event.id = getEventHash(event);
         event = (await nostr.signEvent(event)) as Event;
+        console.log("signed event", event);
         return event;
       } else {
         console.error("nostr not defined");
@@ -119,7 +120,7 @@ export function createIdentifier(title: string, pubkey: string): string {
 
 export function identityTag(
   platform: string,
-  tags: (string | undefined)[][],
+  tags: (string | undefined)[][]
 ): (string | undefined)[] | undefined {
   return tags.find((tag) => tag[0] === "i" && tag[1]?.startsWith(platform));
 }

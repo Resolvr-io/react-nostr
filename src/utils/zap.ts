@@ -64,11 +64,13 @@ async function getZapEndpoint(profileEvent: Event) {
 
 const fetchInvoice = async (zapEndpoint: string, zapRequestEvent: Event) => {
   const comment = zapRequestEvent.content;
-  const amount = tag("amount", zapRequestEvent);
+  // TODO: Figure out why zapRequestEvent is being returned as a stringified JSON object
+  const str = zapRequestEvent as unknown as string;
+  const amount = tag("amount", JSON.parse(str) as Event);
   if (!amount) throw new Error("amount not found");
 
   let url = `${zapEndpoint}?amount=${amount}&nostr=${encodeURIComponent(
-    JSON.stringify(zapRequestEvent),
+    JSON.stringify(JSON.parse(str))
   )}`;
 
   if (comment) {
@@ -119,6 +121,7 @@ export const sendZap = async ({
   amount,
   content,
   secretKey,
+  useQRCode,
 }: {
   relays: RelayUrl[];
   recipientMetadata: Event;
@@ -126,6 +129,7 @@ export const sendZap = async ({
   amount: number;
   content: string;
   secretKey: Uint8Array | undefined;
+  useQRCode?: boolean;
 }) => {
   if (!amount) throw new Error("amount not given");
 
@@ -138,7 +142,6 @@ export const sendZap = async ({
   });
 
   const zapRequestEvent = await finishEvent(zapRequestEventTemplate, secretKey);
-
   if (!zapRequestEvent) throw new Error("zap request event not created");
 
   // console.log("zap request event", zapRequestEvent);
@@ -148,8 +151,6 @@ export const sendZap = async ({
 
   if (!zapEndpoint) throw new Error("zap endpoint not found");
 
-  // console.log("zap endpoint", zapEndpoint);
-
   const invoice = await fetchInvoice(zapEndpoint, zapRequestEvent);
 
   if (!invoice) throw new Error("invoice not found");
@@ -157,7 +158,11 @@ export const sendZap = async ({
   // console.log("invoice", invoice);
 
   try {
-    return await payInvoice(invoice);
+    if (useQRCode) {
+      return invoice;
+    } else {
+      return await payInvoice(invoice);
+    }
   } catch (err) {
     console.error(err);
     throw new Error("zap failed");
