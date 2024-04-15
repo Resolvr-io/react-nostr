@@ -2,8 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import useNostrStore from "../store";
 import { type UseSubscribeParams } from "../types";
 
-// TODO: load newer events function
-// TODO: add invalidation function
 const useSubscribe = ({
   filter,
   eventKey,
@@ -67,6 +65,64 @@ const useSubscribe = ({
     setLoading(false);
   }, [relays, pool]);
 
+  const loadNewerEvents = useCallback(
+    async (eventKey: string, limit: number) => {
+      const { eventMap, setEvents } = useNostrStore.getState();
+
+      setLoading(true);
+      setStatus("fetching");
+      const existingEvents = eventMap[eventKey];
+
+      if (!existingEvents || existingEvents.length === 0) {
+        setLoading(false);
+        setStatus("idle");
+        const newEvents = await pool.querySync(relays, filter);
+        setEvents(eventKey, newEvents);
+        setLoading(false);
+        setStatus("idle");
+        return;
+      }
+
+      let moreFilter = { ...filter, limit };
+
+      const lastEvent = existingEvents[existingEvents.length - 1];
+
+      if (!lastEvent) {
+        setLoading(false);
+        setStatus("idle");
+        return;
+      }
+
+      const since = lastEvent.created_at + 200;
+
+      moreFilter = { ...moreFilter, since };
+
+      const newEvents = await pool.querySync(relays, moreFilter);
+
+      if (!newEvents || newEvents.length === 0) {
+        onEventsNotFound();
+        setLoading(false);
+        setStatus("idle");
+        return;
+      }
+      setNoEvents(false);
+
+      let sortedEvents = newEvents.sort((b, a) => b.created_at - a.created_at);
+
+      // TODO: if events returned are greater than limit, drop the extra events
+      // maybe keep them in a separate list/cache for later use
+      sortedEvents = sortedEvents.slice(0, limit);
+
+      const allEvents = [...sortedEvents, ...existingEvents];
+
+      setEvents(eventKey, allEvents);
+      setLoading(false);
+      setStatus("idle");
+    },
+
+    [relays, pool, filter],
+  );
+
   const loadOlderEvents = useCallback(
     async (eventKey: string, limit: number) => {
       const { eventMap, setEvents } = useNostrStore.getState();
@@ -129,6 +185,7 @@ const useSubscribe = ({
     loading,
     status,
     events: eventMap[eventKey] ?? [],
+    loadNewerEvents,
     loadOlderEvents,
     noEvents,
     invalidate,
