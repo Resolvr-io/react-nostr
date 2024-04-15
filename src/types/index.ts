@@ -47,9 +47,7 @@ export type ZapParams = {
   initialDelay?: number;
   retryInterval?: number;
   useQRCode?: boolean;
-  onPaymentSuccess?: (
-    sendPaymentResponse: SendPaymentResponse | string
-  ) => void;
+  onPaymentSuccess?: (sendPaymentResponse: SendPaymentResponse) => void;
   onPaymentFailure?: () => void;
   onZapReceipts?: (events: Event[]) => void;
   onNoZapReceipts?: () => void;

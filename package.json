@@ -1,6 +1,6 @@
 {
   "name": "react-nostr",
-  "version": "0.0.12",
+  "version": "0.0.15",
   "type": "module",
   "description": "A react library for nostr",
   "homepage": "nodetec.co",
